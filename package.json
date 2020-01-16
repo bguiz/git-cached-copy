@@ -1,0 +1,26 @@
+{
+  "name": "git-cached-copy",
+  "version": "0.0.0",
+  "description": "Copies files from remote git repositories to your local filesystem.",
+  "main": "git-cached-copy.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bguiz/git-cached-copy.git"
+  },
+  "keywords": [
+    "git",
+    "cache",
+    "copy",
+    "remote",
+    "local"
+  ],
+  "author": "bguiz",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/bguiz/git-cached-copy/issues"
+  },
+  "homepage": "https://github.com/bguiz/git-cached-copy#readme"
+}
