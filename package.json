@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Copies files from remote git repositories to your local filesystem.",
   "main": "git-cached-copy.js",
+  "bin": "./git-cached-copy-command.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

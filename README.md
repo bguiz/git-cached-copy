@@ -14,7 +14,7 @@ Clone this project, and `cd` into its directory.
 Create a configuration file.
 
 ```shell
-RUN=1 node ./git-cached-copy.js ./config.json
+./git-cached-copy-command.js ./config.json
 ```
 
 ## Sample configuration file
