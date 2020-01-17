@@ -9,15 +9,20 @@ Features:
 
 ## Usage
 
-Clone this project, and `cd` into its directory.
+Create a configuration file named `.git-cached-copy.config.json`,
+and save this in the root directory of your project.
+See the [Configuration File](#configuration-file) section for details.
 
-Create a configuration file.
+Run this tool:
 
 ```shell
-./git-cached-copy-command.js ./config.json
+npx git-cached-copy ./.git-cached-copy.config.json
 ```
 
-## Sample configuration file
+The output will indicate if any relevant changes were detected
+in the remote repositories, and which files were updated.
+
+## Configuration File
 
 ```json
 {
@@ -28,7 +33,7 @@ Create a configuration file.
       "httpUrl": "https://raw.githubusercontent.com/my-user/my-repo",
       "localPath": "/home/my-user/my-repo",
       "head": "refs/heads/master",
-      "commit": "e5c0283d4d6c5a52a06be6a3fb27efcb2fbe647d",
+      "commit": null,
       "commands": [
         {
           "name": "copySingle",
@@ -40,6 +45,15 @@ Create a configuration file.
   ]
 }
 ```
+
+If this file is committed into a repository of its own,
+you are recommended to omit `localPath`,
+as it will default to the directory from which the tool is run.
+The `localPath` option exists only to override said default.
+
+The value of `commit` will be overwritten by the git commit hash
+each time this tool is run,
+if the remote repository being copied from has changed.
 
 ## Licence
 
