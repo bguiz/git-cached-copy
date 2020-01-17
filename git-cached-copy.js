@@ -71,13 +71,19 @@ async function processProject(project) {
 async function processCommandCopySingle(project, command) {
   const {
     httpUrl,
-    localPath,
     remoteCommit,
+  } = project;
+  let {
+    localPath,
   } = project;
   const {
     remoteFilePath,
     localFilePath,
   } = command;
+
+  if (!localPath) {
+    localPath = process.cwd();
+  }
 
   // download the new copy of the file
   // e.g. `curl https://raw.githubusercontent.com/username/reponame/commithash/README.md`
