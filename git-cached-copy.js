@@ -127,17 +127,6 @@ async function extractFrontMatterFromLocalFile(absoluteLocalFilePath) {
   return frontMatter;
 }
 
-async function runGitCachedCopyFromCli() {
-  const args  = process.argv.slice(2);
-  const configFileName = args[0];
-  if (!configFileName) {
-    throw new Error('Please specify a config file as the first argument');
-  }
-  const configBuffer = await fsReadFile(configFileName);
-  const config = JSON.parse(configBuffer);
-  await gitCachedCopy(config, configFileName);
-}
-
-if (process.env.RUN) {
-  runGitCachedCopyFromCli();
-}
+module.exports = {
+  gitCachedCopy,
+};
