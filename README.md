@@ -38,7 +38,9 @@ in the remote repositories, and which files were updated.
         {
           "name": "copySingle",
           "remoteFilePath": "README.md",
-          "localFilePath": "some/nested/path/my-repo.md"
+          "localFilePath": "some/nested/path/my-repo.md",
+          "localPreserveFrontMatter": true,
+          "remotePreserveFrontMatter": false
         }
       ]
     }
@@ -54,6 +56,9 @@ The `localPath` option exists only to override said default.
 The value of `commit` will be overwritten by the git commit hash
 each time this tool is run,
 if the remote repository being copied from has changed.
+
+Between `localPreserveFrontMatter` and `remotePreserveFrontMatter`,
+only one may be `true`.
 
 ## Licence
 
