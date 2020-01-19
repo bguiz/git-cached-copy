@@ -1,9 +1,10 @@
 const path = require('path');
 
 const {
-  fsReadFile,
   fsWriteFile,
   execShellCommand,
+  splitFrontMatterAndContent,
+  splitFrontMatterAndContentFromLocalFile,
 } = require('./utils.js');
 
 async function gitCachedCopy(config, configFileName) {
@@ -79,6 +80,8 @@ async function processCommandCopySingle(project, command) {
   const {
     remoteFilePath,
     localFilePath,
+    localPreserveFrontMatter,
+    remotePreserveFrontMatter,
   } = command;
 
   if (!localPath) {
@@ -98,8 +101,10 @@ async function processCommandCopySingle(project, command) {
   const absoluteLocalFilePath = path.resolve(localPath, localFilePath);
   overwriteLocalFile(
     absoluteLocalFilePath,
-    downloadFileResult.stdout, {
-      preserveFrontMatter: true,
+    downloadFileResult.stdout,
+    {
+      localPreserveFrontMatter,
+      remotePreserveFrontMatter,
     },
   );
 }
@@ -108,29 +113,34 @@ async function overwriteLocalFile(
   absoluteLocalFilePath,
   remoteFileContents,
   {
-    preserveFrontMatter,
+    localPreserveFrontMatter,
+    remotePreserveFrontMatter,
   },
 ) {
-  let dataToWrite;
-  if (preserveFrontMatter) {
-    const frontMatter = await extractFrontMatterFromLocalFile(absoluteLocalFilePath);
-    dataToWrite = frontMatter + '\n' + remoteFileContents;
-  } else {
-    dataToWrite = remoteFileContents;
+  console.log({
+    localPreserveFrontMatter,
+    remotePreserveFrontMatter,
+  });
+
+  let contentRemote = remoteFileContents;
+  let dataToWrite = '';
+  if (localPreserveFrontMatter) {
+    const {
+      frontMatter,
+    } = await splitFrontMatterAndContentFromLocalFile(absoluteLocalFilePath);
+    dataToWrite += frontMatter;
+  } else if (remotePreserveFrontMatter) {
+    const {
+      frontMatter,
+      content,
+    } = await splitFrontMatterAndContent(remoteFileContents);
+    contentRemote = content;
+    dataToWrite += frontMatter;
   }
+  dataToWrite += '\n' + contentRemote;
+
   await fsWriteFile(absoluteLocalFilePath, dataToWrite);
   console.log(`Updated: ${absoluteLocalFilePath}`);
-}
-
-async function extractFrontMatterFromLocalFile(absoluteLocalFilePath) {
-  const fileBuffer = await fsReadFile(absoluteLocalFilePath);
-  const fileContent = fileBuffer.toString();
-  const index1stNewline = fileContent.indexOf('\n');
-  const frontMatterDelimiter = fileContent.substring(0, index1stNewline);
-  const index2ndNewline = fileContent.indexOf(frontMatterDelimiter, index1stNewline + 1);
-  const indexEndFrontMatter = index2ndNewline + frontMatterDelimiter.length + 1;
-  const frontMatter = fileContent.substring(0, indexEndFrontMatter);
-  return frontMatter;
 }
 
 module.exports = {

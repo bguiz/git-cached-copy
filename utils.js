@@ -19,8 +19,29 @@ function execShellCommand(command) {
   });
 }
 
+function splitFrontMatterAndContent(bufferOrString) {
+  const fileContent = bufferOrString.toString();
+  const index1stNewline = fileContent.indexOf('\n');
+  const frontMatterDelimiter = fileContent.substring(0, index1stNewline);
+  const index2ndNewline = fileContent.indexOf(frontMatterDelimiter, index1stNewline + 1);
+  const indexEndFrontMatter = index2ndNewline + frontMatterDelimiter.length + 1;
+  const frontMatter = fileContent.substring(0, indexEndFrontMatter);
+  const content = fileContent.substring(indexEndFrontMatter);
+  return {
+    frontMatter,
+    content,
+  };
+}
+
+async function splitFrontMatterAndContentFromLocalFile(absoluteLocalFilePath) {
+  const fileBuffer = await fsReadFile(absoluteLocalFilePath);
+  return splitFrontMatterAndContent(fileBuffer);
+}
+
 module.exports = {
   fsReadFile,
   fsWriteFile,
   execShellCommand,
+  splitFrontMatterAndContent,
+  splitFrontMatterAndContentFromLocalFile,
 };
