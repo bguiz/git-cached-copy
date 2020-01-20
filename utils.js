@@ -2,6 +2,8 @@ const childProcess = require('child_process');
 
 const fs = require('fs');
 const util = require('util');
+const http = require('http');
+const https = require('https');
 
 const fsWriteFile = util.promisify(fs.writeFile);
 
@@ -16,6 +18,52 @@ function execShellCommand(command) {
         stderr,
       });
     });
+  });
+}
+
+function copyRemoteFileToLocal(remoteUrl, absoluteLocalFilePath) {
+  return new Promise((resolve, reject) => {
+    const protocolSeparatorIndex = remoteUrl.indexOf('://');
+    if (protocolSeparatorIndex < 0) {
+      return reject(new Error('Invalid protocol specified in URL'));
+    }
+
+    let request;
+    const file = fs.createWriteStream(absoluteLocalFilePath);
+
+    const protocol = remoteUrl.substring(0, protocolSeparatorIndex);
+    switch (protocol) {
+      case 'http':
+        request = http.get(remoteUrl, handleHttpOrHttpsDownload);
+        request.on('error', handleHttpOrHttpsError);
+        break;
+      case 'https':
+        request = https.get(remoteUrl, handleHttpOrHttpsDownload);
+        request.on('error', handleHttpOrHttpsError);
+        break;
+      default:
+        return reject(new Error(`Unsupported protocol specified in URL: ${protocol}`));
+    }
+
+    function handleHttpOrHttpsError(err) {
+      fs.unlink(absoluteLocalFilePath);
+      return reject(err);
+    }
+
+    function handleHttpOrHttpsDownload(response) {
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        return reject(new Error(`Response with status code: ${response.statusCode}`));
+      }
+      response.pipe(file);
+      file.on('finish', () => {
+        file.close((err) => {
+          if (err) {
+            return reject(err);
+          }
+          return resolve();
+        });
+      });
+    }
   });
 }
 
@@ -44,4 +92,5 @@ module.exports = {
   execShellCommand,
   splitFrontMatterAndContent,
   splitFrontMatterAndContentFromLocalFile,
+  copyRemoteFileToLocal,
 };
