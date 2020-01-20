@@ -1,6 +1,6 @@
 {
   "name": "git-cached-copy",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Copies files from remote git repositories to your local filesystem.",
   "main": "git-cached-copy.js",
   "bin": "./git-cached-copy-command.js",
