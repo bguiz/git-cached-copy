@@ -5,6 +5,7 @@ const {
   execShellCommand,
   splitFrontMatterAndContent,
   splitFrontMatterAndContentFromLocalFile,
+  copyRemoteFileToLocal,
 } = require('./utils.js');
 
 async function gitCachedCopy(config, configFileName) {
@@ -62,11 +63,37 @@ async function processProject(project) {
     switch (command.name) {
       case 'copySingle':
         return processCommandCopySingle(project, command);
+      case 'copySingleAsStream':
+        return processCommandCopySingleAsStream(project, command);
       default:
         throw new Error(`Unsupported command: ${command.name}`);
     }
   });
   await Promise.all(commandPromises);
+}
+
+async function processCommandCopySingleAsStream(project, command) {
+  const {
+    httpUrl,
+    remoteCommit,
+  } = project;
+  let {
+    localPath,
+  } = project;
+  const {
+    remoteFilePath,
+    localFilePath,
+  } = command;
+
+  if (!localPath) {
+    localPath = process.cwd();
+  }
+
+  const remoteFileUrl = `${httpUrl}/${remoteCommit}/${remoteFilePath}`;
+  const absoluteLocalFilePath = path.resolve(localPath, localFilePath);
+
+  // download the new copy of the file directly into location of the old file
+  await copyRemoteFileToLocal(remoteFileUrl, absoluteLocalFilePath);
 }
 
 async function processCommandCopySingle(project, command) {
